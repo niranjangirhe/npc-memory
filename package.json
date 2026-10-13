@@ -1,0 +1,22 @@
+{
+  "name": "npc-memory",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An apple seller who remembers how you treat her, voiced by a small language model running on your own machine.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Niranjan Girhe",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
