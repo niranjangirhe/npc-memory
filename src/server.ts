@@ -1,12 +1,14 @@
 /**
- * Local server for the game page. Serves web/ and two endpoints:
+ * Local server for the game page. Serves web/ and these endpoints:
  *
  *   GET  /api/status  which decision model and which language models are running
  *   POST /api/turn    { events, decider, voice } -> Mira's memory, decision and line
+ *   POST /api/bench   { turns, seed, decider, voice } -> one JSON line per turn, then the result
  */
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
+import { runBench } from "./bench.ts";
 import { ACTIONS, type Event } from "./memory.ts";
 import { defaultServices, takeTurn, type Services } from "./turn.ts";
 
@@ -20,6 +22,7 @@ const TYPES: Record<string, string> = {
 
 const MAX_EVENTS = 300;
 const MAX_SAY = 200;
+const MAX_BENCH_TURNS = 500;
 
 class HttpError extends Error {
   constructor(
@@ -84,9 +87,36 @@ export function createApp(root: string, services: Services = defaultServices()) 
     throw new HttpError(404, "not found");
   }
 
+  let benchRunning = false;
+
+  /** Streams progress as newline-delimited JSON so the page can draw it live. */
+  async function bench(req: IncomingMessage, res: ServerResponse) {
+    if (benchRunning) throw new HttpError(409, "a benchmark is already running");
+    const body = await readJson(req);
+    const opts = {
+      turns: Math.max(1, Math.min(MAX_BENCH_TURNS, Number(body.turns) || 30)),
+      seed: Number(body.seed) || 1,
+      decider: body.decider === "gliclass" ? "gliclass" : "rules",
+      voice: typeof body.voice === "string" && body.voice ? body.voice : null,
+    };
+    benchRunning = true;
+    res.writeHead(200, { "content-type": "application/x-ndjson; charset=utf-8" });
+    const line = (o: unknown) => res.write(JSON.stringify(o) + "\n");
+    try {
+      const result = await runBench(opts, services, (turn, done) => line({ type: "turn", done, total: opts.turns, turn }));
+      line({ type: "done", result });
+    } catch (e) {
+      line({ type: "error", error: (e as Error).message });
+    } finally {
+      benchRunning = false;
+      res.end();
+    }
+  }
+
   return createServer(async (req, res) => {
     const path = new URL(req.url ?? "/", "http://localhost").pathname;
     try {
+      if (req.method === "POST" && path === "/api/bench") return await bench(req, res);
       if (path.startsWith("/api/")) return send(res, 200, await api(req, path));
       const target = resolve(webDir, "." + (path === "/" ? "/index.html" : path));
       if (!target.startsWith(webDir + sep)) throw new HttpError(404, "not found");

@@ -41,3 +41,10 @@ test("rejects bad input and paths outside web/", async () => {
   assert.equal((await turn({ events: [{ action: "say", text: "" }] })).status, 400);
   assert.equal((await fetch(`${base}/..%2Fpackage.json`)).status, 404);
 });
+
+test("streams a benchmark one turn at a time", async () => {
+  const res = await fetch(`${base}/api/bench`, { method: "POST", body: JSON.stringify({ turns: 3, decider: "rules" }) });
+  const lines = (await res.text()).trim().split("\n").map((l) => JSON.parse(l));
+  assert.deepEqual(lines.map((l) => l.type), ["turn", "turn", "turn", "done"]);
+  assert.equal(lines.at(-1).result.turns.length, 3);
+});

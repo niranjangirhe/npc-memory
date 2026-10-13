@@ -12,7 +12,8 @@
   "scripts": {
     "start": "tsx src/main.ts",
     "test": "tsx --test test/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "bench": "tsx src/bench-cli.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

@@ -21,13 +21,17 @@ export type Decision = {
   scores: { reaction: Option<Reaction>[]; price: Option<Price>[] };
   by: string;
   ms: number;
+  /** time spent inside the model itself, when it reports it */
+  modelMs?: number;
   /** set when the preferred model failed and the rules answered instead */
   fallbackReason?: string;
 };
 
+export type ModelScores = Decision["scores"] & { modelMs?: number };
+
 export interface DecisionModel {
   readonly name: string;
-  scores(m: Memory): Promise<Decision["scores"]>;
+  scores(m: Memory): Promise<ModelScores>;
 }
 
 export class RulesModel implements DecisionModel {
@@ -134,6 +138,14 @@ function normalise<T extends string>(ids: readonly T[], labels: Record<T, string
   return ids.map((id, i) => ({ id, p: s[i] / total }));
 }
 
+export type DeciderHealth = {
+  model: string;
+  device: string;
+  load_seconds?: number;
+  rss_mb?: number | null;
+  gpu_mb?: number | null;
+};
+
 export class GliclassModel implements DecisionModel {
   readonly name = "GLiClass";
 
@@ -143,16 +155,16 @@ export class GliclassModel implements DecisionModel {
     private readonly timeoutMs = 10_000,
   ) {}
 
-  async health(): Promise<{ model: string; device: string } | null> {
+  async health(): Promise<DeciderHealth | null> {
     try {
       const res = await this.fetchImpl(`${this.url}/health`, { signal: AbortSignal.timeout(1500) });
-      return res.ok ? ((await res.json()) as { model: string; device: string }) : null;
+      return res.ok ? ((await res.json()) as DeciderHealth) : null;
     } catch {
       return null;
     }
   }
 
-  async scores(m: Memory) {
+  async scores(m: Memory): Promise<ModelScores> {
     const options = supportedOptions(m);
     const questions: Record<string, string[]> = { reaction: options.reaction.map((r) => REACTION_LABELS[r]) };
     if (options.price.length) questions.price = options.price.map((p) => PRICE_LABELS[p]);
@@ -163,8 +175,9 @@ export class GliclassModel implements DecisionModel {
       signal: AbortSignal.timeout(this.timeoutMs),
     });
     if (!res.ok) throw new Error(`decider: ${res.status} ${await res.text()}`);
-    const { scores } = (await res.json()) as { scores: Record<string, Record<string, number>> };
+    const { scores, ms } = (await res.json()) as { scores: Record<string, Record<string, number>>; ms?: number };
     return {
+      modelMs: ms,
       reaction: normalise(REACTIONS, REACTION_LABELS, scores.reaction ?? {}),
       price: options.price.length ? normalise(PRICES, PRICE_LABELS, scores.price ?? {}) : [],
     };
@@ -177,7 +190,7 @@ export async function decide(m: Memory, preferred: DecisionModel, rules: Decisio
   const start = performance.now();
   let by = preferred.name;
   let fallbackReason: string | undefined;
-  let scores: Decision["scores"];
+  let scores: ModelScores;
   try {
     scores = await preferred.scores(m);
   } catch (e) {
@@ -193,9 +206,10 @@ export async function decide(m: Memory, preferred: DecisionModel, rules: Decisio
   return {
     reaction,
     price,
-    scores,
+    scores: { reaction: scores.reaction, price: scores.price },
     by,
     ms: performance.now() - start,
+    modelMs: scores.modelMs,
     fallbackReason,
   };
 }

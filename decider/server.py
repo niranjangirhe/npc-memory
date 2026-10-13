@@ -10,12 +10,17 @@ against the others and the game picks the best one.
 
 POST /decide  {"text": str, "prompt": str, "questions": {"reaction": [label, ...], ...}}
            -> {"scores": {"reaction": {label: score, ...}, ...}, "ms": float}
-GET  /health  -> {"model": str, "device": str}
+GET  /health  -> {"model": str, "device": str, "load_seconds": float, "rss_mb": float | null, "gpu_mb": float | null}
 """
 
 import json
 import os
 import time
+
+try:
+    import psutil
+except ImportError:  # memory is reported as null without it
+    psutil = None
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import torch
@@ -27,11 +32,19 @@ PORT = int(os.environ.get("DECIDER_PORT", "8765"))
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 print(f"Loading {MODEL} on {DEVICE}...", flush=True)
+_load_start = time.perf_counter()
 model = GLiClassModel.from_pretrained(MODEL)
 tokenizer = AutoTokenizer.from_pretrained(MODEL)
 pipeline = ZeroShotClassificationPipeline(
     model, tokenizer, classification_type="single-label", device=DEVICE, progress_bar=False
 )
+LOAD_SECONDS = time.perf_counter() - _load_start
+
+
+def health():
+    rss = psutil.Process().memory_info().rss / 2**20 if psutil else None
+    gpu = torch.cuda.memory_allocated() / 2**20 if DEVICE.startswith("cuda") else None
+    return {"model": MODEL, "device": DEVICE, "load_seconds": LOAD_SECONDS, "rss_mb": rss, "gpu_mb": gpu}
 
 
 def decide(text, prompt, questions):
@@ -61,7 +74,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/health":
-            self._send(200, {"model": MODEL, "device": DEVICE})
+            self._send(200, health())
         else:
             self._send(404, {"error": "not found"})
 
