@@ -11,6 +11,10 @@
       <div>
         <h1>Mira's apple stall</h1>
         <p class="muted">She remembers how you treat her.</p>
+        <nav class="views">
+          <button data-view="play" aria-pressed="true">Play</button>
+          <button data-view="bench" aria-pressed="false">Benchmark</button>
+        </nav>
       </div>
       <div class="settings">
         <label>
@@ -27,7 +31,7 @@
       </div>
     </header>
 
-    <main class="layout">
+    <main id="play-view" class="layout">
       <section class="scene card">
         <div id="portrait" class="portrait"></div>
 
@@ -81,6 +85,52 @@
       </aside>
     </main>
 
+    <main id="bench-view" class="bench" hidden>
+      <section class="card">
+        <h2>Benchmark</h2>
+        <p class="muted small">Plays a random game against Mira with the decision model and dialogue model picked at the top, and times every step. The same seed always plays the same game, so runs on different settings or machines can be compared.</p>
+        <form id="bench-form" class="bench-form">
+          <label><span>Turns</span><input id="bench-turns" type="number" min="1" max="500" value="30" /></label>
+          <label><span>Seed</span><input id="bench-seed" type="number" min="1" value="1" /></label>
+          <p id="bench-using" class="muted small"></p>
+          <button id="bench-run" type="submit" class="primary">Run</button>
+        </form>
+        <div id="bench-progress" class="progress" hidden><span></span></div>
+        <p id="bench-status" class="muted small"></p>
+      </section>
+
+      <div id="bench-results" hidden>
+        <section class="card">
+          <div class="row spread">
+            <h2>Results</h2>
+            <button id="bench-save" class="ghost">Download JSON</button>
+          </div>
+          <div id="bench-tiles" class="tiles"></div>
+        </section>
+
+        <section class="card">
+          <h2>Time per turn</h2>
+          <div class="legend">
+            <span><i style="background: var(--series-1)"></i>Decision</span>
+            <span><i style="background: var(--series-2)"></i>Dialogue</span>
+          </div>
+          <div id="bench-chart" class="chart"></div>
+          <p class="muted small">Hover a bar for that turn. Turn 1 includes warm-up.</p>
+        </section>
+
+        <section class="card">
+          <h2>Models and memory</h2>
+          <dl id="bench-resources" class="resources"></dl>
+        </section>
+
+        <section class="card">
+          <h2>Every turn</h2>
+          <div class="scroll"><table id="bench-table"></table></div>
+        </section>
+      </div>
+    </main>
+
     <script type="module" src="app.js"></script>
+    <script type="module" src="bench.js"></script>
   </body>
 </html>

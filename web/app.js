@@ -63,6 +63,8 @@ async function loadStatus() {
     models.map((m) => `<option value="${esc(m)}">${esc(m)}</option>`).join("") + `<option value="">Authored lines</option>`;
   $("#voice").value = models.find((m) => m.startsWith("qwen3")) ?? models[0] ?? "";
   $("#voice-dot").className = `dot ${models.length ? "on" : "off"}`;
+  // let anything showing the current settings (the Benchmark view) update
+  $("#voice").dispatchEvent(new Event("change"));
   $("#voice-dot").title = models.length
     ? "Ollama is running"
     : "No Ollama models found, so Mira uses authored lines. Start Ollama and pull a model, e.g. ollama pull qwen3:0.6b";
