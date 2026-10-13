@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mira's apple stall</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div>
+        <h1>Mira's apple stall</h1>
+        <p class="muted">She remembers how you treat her.</p>
+      </div>
+      <div class="settings">
+        <label>
+          <span>Decisions <i id="decider-dot" class="dot"></i></span>
+          <select id="decider">
+            <option value="gliclass">GLiClass</option>
+            <option value="rules">Built-in rules</option>
+          </select>
+        </label>
+        <label>
+          <span>Dialogue <i id="voice-dot" class="dot"></i></span>
+          <select id="voice"></select>
+        </label>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="scene card">
+        <div id="portrait" class="portrait"></div>
+
+        <div class="speech">
+          <p id="line" class="bubble">Fresh apples! Two coins each.</p>
+          <p id="credit" class="credit muted"></p>
+          <div id="outcome" class="outcome"></div>
+        </div>
+
+        <div class="purse">
+          <span>Day <b id="day">1</b></span>
+          <span><b id="coins">10</b> coins</span>
+          <span><b id="apples">0</b> apples</span>
+        </div>
+
+        <div id="actions" class="actions"></div>
+
+        <form id="say" class="say">
+          <input id="say-text" maxlength="200" placeholder="Say something to Mira…" autocomplete="off" />
+          <button type="submit">Say</button>
+        </form>
+
+        <div class="row">
+          <button id="undo" class="ghost">Undo</button>
+          <button id="restart" class="ghost">New game</button>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="card">
+          <h2>What Mira remembers</h2>
+          <div id="meters"></div>
+          <ul id="notes" class="notes"></ul>
+        </section>
+
+        <section class="card">
+          <h2>So far</h2>
+          <ol id="story" class="story"></ol>
+        </section>
+
+        <details class="card behind">
+          <summary><h2>Behind the scenes</h2></summary>
+          <p class="muted small">Each turn has two steps. A typed decision model reads her history and the current state and picks from the options the game supports. A small language model then turns that choice into what she says.</p>
+          <h3>1. What the decision model read</h3>
+          <p id="situation" class="mono"></p>
+          <h3>2. Options and scores</h3>
+          <div id="scores"></div>
+          <h3>3. What the language model was asked</h3>
+          <pre id="prompt" class="mono"></pre>
+        </details>
+      </aside>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
