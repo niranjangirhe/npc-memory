@@ -4,12 +4,14 @@
  *   GET  /api/status  which decision model and which language models are running
  *   POST /api/turn    { events, decider, voice } -> Mira's memory, decision and line
  *   POST /api/bench   { turns, seed, decider, voice } -> one JSON line per turn, then the result
+ *   GET  /api/system  CPU, RAM and GPU use, and how much memory each model takes
  */
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { runBench } from "./bench.ts";
 import { ACTIONS, type Event } from "./memory.ts";
+import { systemStats } from "./system.ts";
 import { defaultServices, takeTurn, type Services } from "./turn.ts";
 
 const TYPES: Record<string, string> = {
@@ -64,6 +66,7 @@ export function createApp(root: string, services: Services = defaultServices()) 
       const [gliclass, models] = await Promise.all([services.gliclass.health(), services.ollama.models()]);
       return { gliclass, ollama: models === null ? null : { models } };
     }
+    if (req.method === "GET" && path === "/api/system") return systemStats(services);
     if (req.method === "POST" && path === "/api/turn") {
       const body = await readJson(req);
       return takeTurn(

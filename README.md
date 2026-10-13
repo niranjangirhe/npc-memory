@@ -15,7 +15,9 @@ Each turn has two steps.
 
 Either step can drop out. Without GLiClass, built-in rules make the decision. Without Ollama, she uses authored lines. The game is fully playable with neither.
 
-Open "Behind the scenes" on the page to see the text the decision model read, the score it gave each option, and the prompt the language model got.
+The "How she decided" card next to her shows the score each reaction and price got. Open "Behind the scenes" to see the text the decision model read and the prompt the language model got.
+
+A bar under the title shows CPU, RAM, GPU and VRAM use while you play, and how much memory each model takes. GPU numbers need an NVIDIA card with `nvidia-smi`; on other machines the bar says the GPU wasn't detected.
 
 ## Running it
 
@@ -65,6 +67,7 @@ src/dialogue.ts   step 2: turning the decision into a line, with authored lines 
 src/lines.ts      the authored lines
 src/turn.ts       one turn: remember, decide, speak
 src/bench.ts      the benchmark (src/bench-cli.ts runs it from the command line)
+src/system.ts     CPU, RAM and GPU stats for the page
 src/server.ts     local server for the page
 decider/          GLiClass behind a small HTTP service
 web/              the game page (plain HTML, CSS and JavaScript)

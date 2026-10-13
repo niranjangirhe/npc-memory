@@ -48,3 +48,12 @@ test("streams a benchmark one turn at a time", async () => {
   assert.deepEqual(lines.map((l) => l.type), ["turn", "turn", "turn", "done"]);
   assert.equal(lines.at(-1).result.turns.length, 3);
 });
+
+test("reports system stats", async () => {
+  const s = await (await fetch(`${base}/api/system`)).json();
+  assert.ok(s.cpu.cores > 0);
+  assert.ok(s.cpu.usage >= 0 && s.cpu.usage <= 1);
+  assert.ok(s.memory.totalMB > s.memory.usedMB);
+  assert.equal(s.decider, null);
+  assert.deepEqual(s.ollama, []);
+});
