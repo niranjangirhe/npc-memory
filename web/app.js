@@ -149,6 +149,13 @@ function bars(title, options, chosen) {
   return `<p class="small muted">${title}</p><div class="bars">${rows}</div>`;
 }
 
+/** The game turns any price into "no sale" when she refuses or calls the guards. */
+function overridden(d) {
+  if (!d.scores.price.length || d.price !== "no sale") return false;
+  const top = d.scores.price.reduce((a, b) => (b.p > a.p ? b : a));
+  return top.id !== "no sale";
+}
+
 function render(turn, result) {
   const m = turn.memory;
   const d = turn.decision;
@@ -178,7 +185,11 @@ function render(turn, result) {
   renderStory();
 
   $("#situation").textContent = turn.situation;
-  $("#scores").innerHTML = bars("Her reaction", d.scores.reaction, d.reaction) + bars("Her price", d.scores.price, d.price);
+  $("#decided-by").textContent = `by ${d.by}`;
+  $("#scores").innerHTML =
+    bars("Her reaction", d.scores.reaction, d.reaction) +
+    (d.scores.price.length ? bars("Her price", d.scores.price, d.price) : `<p class="small muted">Her price is only decided when you buy.</p>`) +
+    (overridden(d) ? `<p class="small muted">No sale: the game doesn't sell to someone she is refusing or calling the guards on.</p>` : "");
   // the two fixed examples in the middle of the prompt are the same every turn
   $("#prompt").textContent = s.prompt
     ? `${s.prompt[0].content}\n\n(two short example exchanges)\n\n${s.prompt.at(-1).content}`
@@ -208,7 +219,8 @@ function renderEmpty() {
   $("#notes").innerHTML = "";
   $("#story").innerHTML = "";
   $("#situation").textContent = "Nothing has happened yet.";
-  $("#scores").innerHTML = "";
+  $("#decided-by").textContent = "";
+  $("#scores").innerHTML = `<p class="muted small">Do something and her options will be scored here.</p>`;
   $("#prompt").textContent = "";
 }
 

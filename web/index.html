@@ -57,6 +57,11 @@
 
       <aside class="side">
         <section class="card">
+          <h2>How she decided <span id="decided-by" class="muted small"></span></h2>
+          <div id="scores"><p class="muted small">Do something and her options will be scored here.</p></div>
+        </section>
+
+        <section class="card">
           <h2>What Mira remembers</h2>
           <div id="meters"></div>
           <ul id="notes" class="notes"></ul>
@@ -72,9 +77,7 @@
           <p class="muted small">Each turn has two steps. A typed decision model reads her history and the current state and picks from the options the game supports. A small language model then turns that choice into what she says.</p>
           <h3>1. What the decision model read</h3>
           <p id="situation" class="mono"></p>
-          <h3>2. Options and scores</h3>
-          <div id="scores"></div>
-          <h3>3. What the language model was asked</h3>
+          <h3>2. What the language model was asked</h3>
           <pre id="prompt" class="mono"></pre>
         </details>
       </aside>
