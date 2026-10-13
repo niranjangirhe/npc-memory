@@ -54,3 +54,9 @@ test("when GLiClass is down the built-in rules decide", async () => {
 test("the description includes what the player said", () => {
   assert.match(describe(replay([{ action: "say", text: "Got any pears?" }])), /just said: "Got any pears\?"/);
 });
+
+test("refusing or calling the guards means no sale, whatever the price scores say", async () => {
+  const { model } = fakeDecider((l) => (l === REACTION_LABELS.call_guards || l === PRICE_LABELS["3 coins"] ? 0.9 : 0.1));
+  const d = await decide(replay(acts("hit", "buy")), model);
+  assert.deepEqual([d.reaction, d.price], ["call_guards", "no sale"]);
+});

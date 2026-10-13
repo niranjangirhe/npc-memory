@@ -186,9 +186,13 @@ export async function decide(m: Memory, preferred: DecisionModel, rules: Decisio
     scores = await rules.scores(m);
   }
   if (m.last !== "buy") scores = { ...scores, price: [] };
+  const reaction = best(scores.reaction).id;
+  let price = scores.price.length ? best(scores.price).id : null;
+  // the game won't let her charge someone she is refusing or calling the guards on
+  if (price && (reaction === "refuse" || reaction === "call_guards")) price = "no sale";
   return {
-    reaction: best(scores.reaction).id,
-    price: scores.price.length ? best(scores.price).id : null,
+    reaction,
+    price,
     scores,
     by,
     ms: performance.now() - start,
