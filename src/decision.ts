@@ -117,11 +117,13 @@ export const REACTION_LABELS: Record<Reaction, string> = {
   call_guards: "Mira feels in danger and shouts for the guards",
 };
 
+// Zero-shot classifiers are poor at telling "one coin" from "three coins", so
+// each price is described by what it means for the player.
 export const PRICE_LABELS: Record<Price, string> = {
-  "1 coin": "Mira gives the player a discount of one coin",
-  "2 coins": "Mira charges the usual price of two coins",
-  "3 coins": "Mira charges the player extra, three coins",
-  "no sale": "Mira won't sell to the player",
+  "1 coin": "Mira gives a discount to someone she likes and is grateful to",
+  "2 coins": "Mira charges the usual price, like for any other customer",
+  "3 coins": "Mira charges extra to get back at someone who wronged her",
+  "no sale": "Mira refuses to sell to someone she can't stand",
 };
 
 const TASK = "Decide how Mira, an apple seller, responds to the player, given everything the player has done to her.";

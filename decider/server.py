@@ -2,8 +2,8 @@
 Runs GLiClass as Mira's typed decision model.
 
 The game posts a description of Mira's history and the current state, plus
-the options it supports for each question. GLiClass scores every option and
-the game picks the best one.
+the options it supports for each question. GLiClass scores every option
+against the others and the game picks the best one.
 
     pip install -r decider/requirements.txt
     python decider/server.py
@@ -30,16 +30,23 @@ print(f"Loading {MODEL} on {DEVICE}...", flush=True)
 model = GLiClassModel.from_pretrained(MODEL)
 tokenizer = AutoTokenizer.from_pretrained(MODEL)
 pipeline = ZeroShotClassificationPipeline(
-    model, tokenizer, classification_type="multi-label", device=DEVICE, progress_bar=False
+    model, tokenizer, classification_type="single-label", device=DEVICE, progress_bar=False
 )
 
 
 def decide(text, prompt, questions):
     scores = {}
     for name, labels in questions.items():
-        # threshold 0 keeps every label, so the game sees a score for each option
-        results = pipeline(text, labels, threshold=0.0, prompt=prompt or None)[0]
-        scores[name] = {r["label"]: r["score"] for r in results}
+        # Single-label mode compares the options with each other (a softmax over
+        # them), so the scores add up to 1 and show which option clearly wins.
+        # return_hierarchical keeps every option's score, not just the best one.
+        scores[name] = pipeline(
+            text,
+            labels,
+            classification_type="single-label",
+            prompt=prompt or None,
+            return_hierarchical=True,
+        )[0]
     return scores
 
 
