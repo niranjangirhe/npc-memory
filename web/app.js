@@ -177,8 +177,9 @@ function render(turn, result) {
 
   $("#situation").textContent = turn.situation;
   $("#scores").innerHTML = bars("Her reaction", d.scores.reaction, d.reaction) + bars("Her price", d.scores.price, d.price);
+  // the two fixed examples in the middle of the prompt are the same every turn
   $("#prompt").textContent = s.prompt
-    ? s.prompt.map((p) => `[${p.role}]\n${p.content}`).join("\n\n")
+    ? `${s.prompt[0].content}\n\n(two short example exchanges)\n\n${s.prompt.at(-1).content}`
     : "No language model this turn; she used an authored line.";
 }
 
