@@ -69,17 +69,6 @@ export type BenchResult = {
 
 /* ---------------- a seeded random player ---------------- */
 
-const SAYINGS = [
-  "Good morning!",
-  "How much for an apple?",
-  "Sorry about yesterday.",
-  "Your apples look great today.",
-  "Can I get a discount?",
-  "I didn't take anything, I swear.",
-  "Need a hand with those crates?",
-  "Why are you looking at me like that?",
-];
-
 const WEIGHTS: [Action, number][] = [
   ["greet", 3],
   ["buy", 4],
@@ -88,7 +77,6 @@ const WEIGHTS: [Action, number][] = [
   ["bump", 1],
   ["steal", 1.5],
   ["hit", 0.5],
-  ["say", 3],
   ["wait", 2],
 ];
 
@@ -111,7 +99,7 @@ export function randomPlay(turns: number, seed: number): Event[] {
   for (let i = 0; i < turns; i++) {
     let r = rand() * total;
     const action = WEIGHTS.find(([, w]) => (r -= w) < 0)?.[0] ?? "greet";
-    events.push(action === "say" ? { action, text: SAYINGS[Math.floor(rand() * SAYINGS.length)] } : { action });
+    events.push({ action });
   }
   return events;
 }

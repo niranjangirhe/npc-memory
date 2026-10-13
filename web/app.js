@@ -113,7 +113,7 @@ function settle(event, turn) {
 }
 
 function setBusy(on) {
-  for (const b of document.querySelectorAll(".actions button, .say button, #undo, #restart")) b.disabled = on;
+  for (const b of document.querySelectorAll(".actions button, #undo, #restart")) b.disabled = on;
   if (on) {
     $("#line").classList.add("thinking");
     $("#line").textContent = "…";
@@ -189,8 +189,7 @@ function renderStory() {
   $("#story").innerHTML = game.story
     .map(({ event, line }) => {
       if (event.action === "wait") return `<li class="night">${DID.wait}</li>`;
-      const you = event.action === "say" ? `You: “${esc(event.text)}”` : DID[event.action];
-      return `<li><div class="you">${you}</div><div>Mira: ${esc(line)}</div></li>`;
+      return `<li><div class="you">${DID[event.action]}</div><div>Mira: ${esc(line)}</div></li>`;
     })
     .join("");
   $("#story").scrollTop = $("#story").scrollHeight;
@@ -219,13 +218,6 @@ $("#actions").innerHTML = ACTIONS.map((a) => `<button data-action="${a.id}" clas
 $("#actions").addEventListener("click", (e) => {
   const action = e.target.closest("button")?.dataset.action;
   if (action) play({ action });
-});
-$("#say").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const text = $("#say-text").value.trim();
-  if (!text) return;
-  $("#say-text").value = "";
-  play({ action: "say", text });
 });
 $("#undo").addEventListener("click", () => {
   if (!undoStack.length) return;

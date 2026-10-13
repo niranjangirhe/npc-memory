@@ -1,6 +1,6 @@
 # npc-memory
 
-Mira sells apples at a market stall, and she remembers how you treat her. Carry her crates and she gives you a discount. Steal from her and she charges you more, refuses to sell, or calls the guards. You can also type things to her.
+Mira sells apples at a market stall, and she remembers how you treat her. Carry her crates and she gives you a discount. Steal from her and she charges you more, refuses to sell, or calls the guards.
 
 It is a small prototype of an NPC whose behaviour comes from her history with the player. The sketch on my [research page](https://girhe.com/research#sketch-npc) uses scripted rules only; this version runs it with local AI models.
 

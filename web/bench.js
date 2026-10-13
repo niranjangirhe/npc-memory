@@ -128,7 +128,7 @@ function render(r) {
     `<thead><tr><th class="num">#</th><th>Player</th><th>Decision</th><th>Mira</th><th class="num">Decision</th><th class="num">Dialogue</th><th class="num">Tokens/s</th></tr></thead><tbody>` +
     r.turns
       .map((t) => {
-        const player = t.event.action === "say" ? `said "${esc(t.event.text)}"` : t.event.action;
+        const player = t.event.action;
         const decision = esc(t.reaction) + (t.price ? ` · ${esc(t.price)}` : "");
         const fb = [t.decisionFellBack && "decision fell back", t.dialogueFellBack && "dialogue fell back"].filter(Boolean).join(", ");
         return `<tr><td class="num">${t.turn}</td><td>${player}</td><td>${decision}</td>
@@ -202,7 +202,7 @@ function chart(turns) {
     const t = turns.find((x) => x.turn === n);
     if (!t) return (tip.hidden = true);
     tip.hidden = false;
-    tip.innerHTML = `<b>Turn ${t.turn}: ${esc(t.event.action === "say" ? `said "${t.event.text}"` : t.event.action)}</b>
+    tip.innerHTML = `<b>Turn ${t.turn}: ${esc(t.event.action)}</b>
       <div><i style="background:var(--series-1)"></i>Decision ${ms(t.decisionMs)}</div>
       <div><i style="background:var(--series-2)"></i>Dialogue ${ms(t.dialogueMs)}</div>
       <div class="muted">${esc(t.reaction)}${t.price ? ` · ${esc(t.price)}` : ""}</div>`;

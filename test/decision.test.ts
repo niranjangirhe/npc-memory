@@ -51,8 +51,10 @@ test("when GLiClass is down the built-in rules decide", async () => {
   assert.match(d.fallbackReason!, /connection refused/);
 });
 
-test("the description includes what the player said", () => {
-  assert.match(describe(replay([{ action: "say", text: "Got any pears?" }])), /just said: "Got any pears\?"/);
+test("the description covers her history and what just happened", () => {
+  const text = describe(replay(acts("help", "wait", "steal")));
+  assert.match(text, /Day 1: the player carried her crates\. .*Day 2: the player stole an apple from her\./);
+  assert.match(text, /The player just stole an apple from her\./);
 });
 
 test("refusing or calling the guards means no sale, whatever the price scores say", async () => {

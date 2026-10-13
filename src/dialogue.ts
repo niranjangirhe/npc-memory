@@ -33,7 +33,6 @@ const THEY: Record<Action, string> = {
   steal: "stole an apple from you",
   hit: "hit you",
   apologise: "apologised",
-  say: "said",
   wait: "",
 };
 
@@ -66,14 +65,9 @@ export function situation(m: Memory, d: Decision): string {
   const past = m.log
     .slice(0, -1)
     .filter((e) => e.action !== "wait")
-    .map((e) => (e.action === "say" ? `${when(e.day, m.day)} they said "${e.text}".` : `${when(e.day, m.day)} they ${THEY[e.action]}.`));
+    .map((e) => `${when(e.day, m.day)} they ${THEY[e.action]}.`);
   const last = m.log.at(-1);
-  const now =
-    !last || last.action === "wait"
-      ? "They just walked up to your stall."
-      : last.action === "say"
-        ? `They just said to you: "${last.text}"`
-        : `They just ${THEY[last.action]}.`;
+  const now = !last || last.action === "wait" ? "They just walked up to your stall." : `They just ${THEY[last.action]}.`;
   const lines = [
     `What has happened: ${past.length ? past.join(" ") : "You have never met them before."}`,
     now,
@@ -82,7 +76,6 @@ export function situation(m: Memory, d: Decision): string {
   ];
   if (d.price === "no sale") lines.push("Don't sell them the apple.");
   else if (d.price) lines.push(`Sell them the apple for ${d.price}. The usual price is 2 coins.`);
-  if (last?.action === "say") lines.push("Answer what they said.");
   return lines.join("\n");
 }
 

@@ -4,13 +4,13 @@
  * from this.
  */
 
-export const ACTIONS = ["greet", "buy", "help", "bump", "steal", "hit", "apologise", "say", "wait"] as const;
+export const ACTIONS = ["greet", "buy", "help", "bump", "steal", "hit", "apologise", "wait"] as const;
 export type Action = (typeof ACTIONS)[number];
 
 export const OFFENCES: Action[] = ["bump", "steal", "hit"];
 
-/** One thing the player did. `text` is only set for "say". */
-export type Event = { action: Action; text?: string };
+/** One thing the player did. */
+export type Event = { action: Action };
 
 export type Memory = {
   day: number;
@@ -31,7 +31,7 @@ export const fresh = (): Memory => ({
   trust: 0,
   annoyance: 0,
   fear: 0,
-  counts: { greet: 0, buy: 0, help: 0, bump: 0, steal: 0, hit: 0, apologise: 0, say: 0, wait: 0 },
+  counts: { greet: 0, buy: 0, help: 0, bump: 0, steal: 0, hit: 0, apologise: 0, wait: 0 },
   brokenApologies: 0,
   apologisedSinceOffence: false,
   last: null,
@@ -83,9 +83,6 @@ export function apply(m: Memory, e: Event): Memory {
       n.annoyance -= 20 * sincerity;
       n.trust += 5 * sincerity;
       n.apologisedSinceOffence = true;
-      break;
-    case "say":
-      // words alone don't move her; the model decides how she takes them
       break;
     case "wait":
       n.day++;

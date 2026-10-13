@@ -21,7 +21,6 @@ const TYPES: Record<string, string> = {
 };
 
 const MAX_EVENTS = 300;
-const MAX_SAY = 200;
 const MAX_BENCH_TURNS = 500;
 
 class HttpError extends Error {
@@ -52,17 +51,9 @@ async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> 
 }
 
 function parseEvents(v: unknown): Event[] {
-  const ok =
-    Array.isArray(v) &&
-    v.length <= MAX_EVENTS &&
-    v.every(
-      (e) =>
-        e &&
-        ACTIONS.includes(e.action) &&
-        (e.action !== "say" || (typeof e.text === "string" && e.text.trim() && e.text.length <= MAX_SAY)),
-    );
-  if (!ok) throw new HttpError(400, "events must be a list of { action, text? }");
-  return (v as Event[]).map((e) => (e.action === "say" ? { action: "say", text: e.text!.trim() } : { action: e.action }));
+  const ok = Array.isArray(v) && v.length <= MAX_EVENTS && v.every((e) => e && ACTIONS.includes(e.action));
+  if (!ok) throw new HttpError(400, "events must be a list of { action }");
+  return (v as Event[]).map((e) => ({ action: e.action }));
 }
 
 export function createApp(root: string, services: Services = defaultServices()) {

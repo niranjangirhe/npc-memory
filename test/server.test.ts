@@ -38,7 +38,7 @@ test("plays a turn, falling back to the rules and authored lines when nothing el
 
 test("rejects bad input and paths outside web/", async () => {
   assert.equal((await turn({ events: [{ action: "dance" }] })).status, 400);
-  assert.equal((await turn({ events: [{ action: "say", text: "" }] })).status, 400);
+  assert.equal((await turn({ events: "steal" })).status, 400);
   assert.equal((await fetch(`${base}/..%2Fpackage.json`)).status, 404);
 });
 

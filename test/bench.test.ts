@@ -7,7 +7,7 @@ import { randomPlay, runBench, stats } from "../src/bench.ts";
 test("the same seed plays the same game", () => {
   assert.deepEqual(randomPlay(20, 7), randomPlay(20, 7));
   assert.notDeepEqual(randomPlay(20, 7), randomPlay(20, 8));
-  assert.ok(randomPlay(50, 1).some((e) => e.action === "say" && e.text));
+  assert.ok(new Set(randomPlay(50, 1).map((e) => e.action)).size > 5);
 });
 
 test("stats", () => {

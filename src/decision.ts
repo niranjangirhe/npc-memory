@@ -51,7 +51,6 @@ const PAST: Record<Action, string> = {
   steal: "stole an apple from her",
   hit: "hit her",
   apologise: "apologised",
-  say: "said",
   wait: "stayed away until the next day",
 };
 
@@ -61,9 +60,7 @@ function level(v: number, words: [number, string][]) {
 
 /** The text the decision model classifies: her history, then the state now. */
 export function describe(m: Memory): string {
-  const history = m.log.map((e) =>
-    e.action === "say" ? `Day ${e.day}: the player said "${e.text}".` : `Day ${e.day}: the player ${PAST[e.action]}.`,
-  );
+  const history = m.log.map((e) => `Day ${e.day}: the player ${PAST[e.action]}.`);
   const c = m.counts;
   const n = (k: number, one: string, many: string) => (k === 1 ? one : `${k} ${many}`);
   const totals = [
@@ -91,12 +88,7 @@ export function describe(m: Memory): string {
     [10, "She is a little nervous."],
     [0, ""],
   ]);
-  const now =
-    m.last === null
-      ? "The player walks up to her stall."
-      : m.last === "say"
-        ? `The player just said: "${m.log.at(-1)?.text}".`
-        : `The player just ${PAST[m.last]}.`;
+  const now = m.last === null ? "The player walks up to her stall." : `The player just ${PAST[m.last]}.`;
   return [
     "Mira sells apples at a market stall.",
     history.length ? history.join(" ") : "She has never met the player.",

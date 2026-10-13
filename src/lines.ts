@@ -20,20 +20,6 @@ export function authoredLine(m: Memory, r: Reaction, price: Price | null): strin
         return "Two coins, same as anyone.";
     }
   }
-  if (m.last === "say") {
-    switch (r) {
-      case "welcome":
-        return "Always good to see you. What can I do for you?";
-      case "serve":
-        return "Mm. Anything else? Apples are two coins.";
-      case "wary":
-        return "Words are cheap. I remember what you did.";
-      case "refuse":
-        return "I've nothing to say to you.";
-      case "call_guards":
-        return "Get away from me! Guards!";
-    }
-  }
   switch (r) {
     case "call_guards":
       return m.fear > 60 ? "Stay back! Guards! GUARDS!" : "What is wrong with you?! Guards!";

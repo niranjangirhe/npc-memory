@@ -25,12 +25,6 @@ test("a night halves annoyance and grudges fade slowly", () => {
   assert.deepEqual([m.day, m.annoyance, m.trust], [2, 10, -18]);
 });
 
-test("what the player says is remembered but doesn't move her feelings", () => {
-  const m = replay([{ action: "say", text: "Lovely apples" }]);
-  assert.equal(m.log[0].text, "Lovely apples");
-  assert.deepEqual([m.trust, m.annoyance, m.fear], [0, 0, 0]);
-});
-
 test("notes describe the history in plain words", () => {
   assert.deepEqual(notes(replay(acts("help", "help", "steal"))), ["You carried her crates twice.", "You stole an apple."]);
   assert.deepEqual(notes(replay([])), []);
