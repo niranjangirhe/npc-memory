@@ -11,7 +11,7 @@ It is a small prototype of an NPC whose behaviour comes from her history with th
 Each turn has two steps.
 
 1. A typed decision model decides. It reads Mira's history with the player and the current game state, and picks from the actions the game supports: how she reacts (`welcome`, `serve`, `wary`, `refuse`, `call_guards`) and, after a purchase, what she charges (`1 coin` to `no sale`). It returns a score for every option, so the game can use the answer directly. This runs on [GLiClass](https://github.com/Knowledgator/GLiClass), an open-source zero-shot classifier.
-2. A small language model speaks. It is told what Mira decided and only puts that into words, so it can't change her mind or her price. This runs on any model served by [Ollama](https://ollama.com), such as [Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B).
+2. A small language model speaks. It is told what Mira decided and only puts that into words, so it can't change her mind or her price. It is prompted as Mira, talking to you, and anything that comes back as narration ("Mira glares at you...") is cut; if nothing she actually says is left, it gets one more try and then she uses an authored line. This runs on any model served by [Ollama](https://ollama.com), such as [Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B).
 
 Either step can drop out. Without GLiClass, built-in rules make the decision. Without Ollama, she uses authored lines. The game is fully playable with neither.
 
@@ -43,6 +43,18 @@ Leave both running and reload the page. The two menus at the top pick which deci
 
 GLiClass uses `knowledgator/gliclass-small-v1.0` by default and runs on the GPU if PyTorch can see one. Set `GLICLASS_MODEL` to try another GLiClass model, or `OLLAMA_HOST` and `DECIDER_URL` if the services run somewhere else.
 
+## Benchmark
+
+The Benchmark tab on the page plays a random game against Mira with whichever models are picked at the top, and times every turn. It shows how long the decision and the line take (median and 95th percentile), how long the first turn took while things warmed up, how fast the language model generates, how often either step fell back, and how much memory each model uses. The same seed always plays the same game, so you can compare models or machines. Results download as JSON.
+
+The same thing runs from the command line and saves to `benchmarks/`:
+
+```sh
+npm run bench -- --turns 50 --decider gliclass --voice qwen3:0.6b
+```
+
+In Windows PowerShell, quote the separator: `npm run bench '--' --turns 50 ...`. Use `--decider rules` or leave out `--voice` to time the built-in rules or the authored lines.
+
 ## Layout
 
 ```
@@ -52,6 +64,7 @@ src/rules.ts      the built-in decision rules
 src/dialogue.ts   step 2: turning the decision into a line, with authored lines as the fallback
 src/lines.ts      the authored lines
 src/turn.ts       one turn: remember, decide, speak
+src/bench.ts      the benchmark (src/bench-cli.ts runs it from the command line)
 src/server.ts     local server for the page
 decider/          GLiClass behind a small HTTP service
 web/              the game page (plain HTML, CSS and JavaScript)
